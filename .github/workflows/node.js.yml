@@ -25,12 +25,7 @@ jobs:
     - name: Configure Docker
       run: |
         gcloud auth configure-docker    
-    - name: Enable google apis
-      run: |
-        gcloud services enable cloudresourcemanager.googleapis.com  --project ${{ secrets.GCP_PROJECT_ID }}
-        gcloud services enable containerregistry.googleapis.com 
-        gcloud services enable run.googleapis.com gcloud 
-        --quiet auth configure-docker    
+        
       
     # Build the Docker image
     - name: Build & Publish
