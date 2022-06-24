@@ -43,5 +43,10 @@ jobs:
         --platform managed \
         --allow-unauthenticated 
 
+    - name: remove image     
+      run: |
+        gcloud container images delete gcr.io/${{ secrets.GCP_PROJECT_ID }}/node-image:  --force-delete-tags
+
+
 
 
