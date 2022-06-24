@@ -45,7 +45,14 @@ jobs:
 
     - name: remove image     
       run: |
-        gcloud container images delete node-image
+        gcloud container images list-tags gcr.io/${{ secrets.GCP_PROJECT_ID }}/cloud-run-demo/node-image \ 
+            --filter='-tags:*' \
+            --format='get(digest)' \
+            --limit=unlimited \
+            | awk '{print "gcr.io/mi-ci-cd-gcp/ci-cd-reactjs-gcp@" $1}' \
+            | xargs gcloud container images delete --quiet
+
+
 
 
 
