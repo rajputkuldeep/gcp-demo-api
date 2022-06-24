@@ -44,11 +44,8 @@ jobs:
         --allow-unauthenticated 
 
     - name: remove image     
-      run: 
-        command: |
-          gcloud container images list-tags gcr.io/node-app-demo-354208/cloud-run-demo/node-image --filter='-tags:*' --format='get(digest)' --limit=unlimited &&
-          awk '{print "gcr.io/node-app-demo-354208/cloud-run-demo/node-image@" $1}' &&
-          xargs gcloud container images delete --quiet
+      run:
+        gcloud container images list-tags gcr.io/node-app-demo-354208/cloud-run-demo/node-image --filter='-tags:*' --format='get(digest)' --limit=unlimited | awk '{print "gcr.io/node-app-demo-354208/cloud-run-demo/node-image@" $1}' |xargs gcloud container images delete --quiet
 
 
 
