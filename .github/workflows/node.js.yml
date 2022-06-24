@@ -46,7 +46,7 @@ jobs:
     - name: delete unused image from cloud registry
       run: |
         gcloud container images list-tags gcr.io/${{ secrets.GCP_PROJECT_ID }}/node-image --filter='-tags:*' --format="get(digest)" --limit=10
-        gcloud container images delete gcr.io/${{ secrets.GCP_PROJECT_ID }}/node-image@@sha256:DIGEST --quiet
+        gcloud container images delete gcr.io/${{ secrets.GCP_PROJECT_ID }}/node-image@@sha256:digest --quiet
 
 
 
