@@ -39,9 +39,10 @@ jobs:
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |
-        gcloud run deploy ${{ secrets.GCP_APPLICATION }} --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APPLICATION }} \
+        gcloud run deploy ${{ secrets.GCP_APPLICATION }} --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APPLICATION }}/node-image \
         --platform managed \
         --allow-unauthenticated 
+
     - name: delete unused image from cloud registry
       run: |
         gcloud container images list-tags gcr.io/${{ secrets.GCP_PROJECT_ID }}/node-image --filter='-tags:*' --format="get(digest)" --limit=10
