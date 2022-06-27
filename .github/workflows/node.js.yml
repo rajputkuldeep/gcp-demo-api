@@ -21,7 +21,8 @@ jobs:
         service_account_email: ${{ secrets.GCP_SA_EMAIL }}
         service_account_key: ${{ secrets.PRODUCTION_GCP_SA_KEYBASE64 }}
         export_default_credentials: true
-
+        
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@v0.2.0
       if: github.ref == 'refs/heads/staging'
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID}}
