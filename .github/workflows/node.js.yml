@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+      - staging
+      - production
 jobs:
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
@@ -13,11 +15,19 @@ jobs:
 
     # Setup gcloud CLI
     - uses: GoogleCloudPlatform/github-actions/setup-gcloud@v0.2.0
+      if: github.ref == 'refs/heads/production'
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID}}
+        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+        service_account_key: ${{ secrets.PRODUCTION_GCP_SA_KEYBASE64 }}
+        export_default_credentials: true
+
+      if: github.ref == 'refs/heads/staging'
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID}}
         service_account_email: ${{ secrets.GCP_SA_EMAIL }}
         service_account_key: ${{ secrets.GCP_SA_KEYBASE64 }}
-        export_default_credentials: true
+        export_default_credentials: true  
     
    
         
@@ -33,15 +43,33 @@ jobs:
         gcloud services enable containerregistry.googleapis.com 
         gcloud services enable run.googleapis.com
         gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-        gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APPLICATION }}/node-image
+    - name: Build image for staging
+      if: github.ref == 'refs/heads/staging'
+      run: |
+        gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APPLICATION }}/staging
         gcloud config set run/region us-central1
+
+
+    - name: Build image for production
+      if: github.ref == 'refs/heads/production'
+      run: |
+        gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.PRODUCTION_GCP_APPLICATION }}/production
+        gcloud config set run/region us-central1    
       
     # Deploy the Docker image to the GKE cluster
-    - name: Deploy
+    - name: Deploy staging
+      if: github.ref == 'refs/heads/staging'
       run: |
-        gcloud run deploy ${{ secrets.GCP_APPLICATION }} --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APPLICATION }}/node-image:latest \
+        gcloud run deploy ${{ secrets.GCP_APPLICATION }} --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APPLICATION }}/staging:latest \
         --platform managed \
         --allow-unauthenticated 
+
+    - name: Deploy production
+      if: github.ref == 'refs/heads/production'
+      run: |
+        gcloud run deploy ${{ secrets.PRODUCTION_GCP_APPLICATION }} --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.PRODUCTION_GCP_APPLICATION }}/production:latest \
+        --platform managed \
+        --allow-unauthenticated     
 
     - name: remove image     
       run:
