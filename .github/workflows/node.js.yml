@@ -73,8 +73,14 @@ jobs:
         --allow-unauthenticated     
 
     - name: remove image     
+      if: github.ref == 'refs/heads/staging'
       run:
-        gcloud container images list-tags gcr.io/node-app-demo-354208/cloud-run-demo/node-image --filter='-tags:*' --format='get(digest)' --limit=unlimited | awk '{print "gcr.io/node-app-demo-354208/cloud-run-demo/node-image@" $1}' | xargs gcloud container images delete --quiet
+        gcloud container images list-tags gcr.io/node-app-demo-354208/cloud-run-demo/staging --filter='-tags:*' --format='get(digest)' --limit=unlimited | awk '{print "gcr.io/node-app-demo-354208/cloud-run-demo/staging@" $1}' | xargs gcloud container images delete --quiet
+
+    - name: remove image     
+      if: github.ref == 'refs/heads/production'
+      run:
+        gcloud container images list-tags gcr.io/node-app-demo-354208/node-app-production/production --filter='-tags:*' --format='get(digest)' --limit=unlimited | awk '{print "gcr.io/node-app-demo-354208/node-app-production/production@" $1}' | xargs gcloud container images delete --quiet    
 
 
 
